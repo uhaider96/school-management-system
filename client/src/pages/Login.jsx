@@ -48,7 +48,7 @@ const Login = () => {
                 }
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Kuch masla hua, dubara koshish karein.');
+            setError(err.response?.data?.message || 'An error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
