@@ -1,3 +1,6 @@
+// 1. MUST BE ON LINE 1 (Environment Variables Load karne ke liye)
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -7,7 +10,7 @@ const app = express();
 // Database Connection
 connectDB();
 
-// Middlewares (Yeh dono routes se PEHLE honi chahiye)
+// Middlewares
 app.use(cors());
 app.use(express.json()); 
 
@@ -32,7 +35,13 @@ app.get('/', (req, res) => {
     res.send('School Fee & Finance API is Running...');
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Local Server Listener
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+// CRITICAL FOR VERCEL
+module.exports = app;
