@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['Admin', 'Accountant'],
-        default: 'Accountant'
+        enum: ['Admin', 'Accountant', 'admin', 'accountant'], // Added lowercase support
+        default: 'Admin'
     }
 }, { timestamps: true });
 

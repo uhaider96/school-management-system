@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react'
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
-import { Lock, Mail, User as UserIcon, KeyRound } from 'lucide-react';
+import { Lock, Mail, KeyRound } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [mode, setMode] = useState('login'); // 'login' | 'register' | 'forgot'
+    const [mode, setMode] = useState('login'); // 'login' | 'forgot'
 
-    // Form States
     const [formData, setFormData] = useState({
-        name: '',
         email: '',
         password: '',
         newPassword: ''
@@ -31,19 +29,13 @@ const Login = () => {
                     email: formData.email,
                     password: formData.password
                 });
+
                 if (res.data?.token) {
                     localStorage.setItem('token', res.data.token);
-                    navigate('/dashboard');
-                }
-            } else if (mode === 'register') {
-                const res = await API.post('/auth/register', {
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password
-                });
-                if (res.data?.success) {
-                    setSuccess('Registration successful! Please login.');
-                    setTimeout(() => setMode('login'), 2000);
+                    localStorage.setItem('user', JSON.stringify(res.data.user));
+
+                    // Hard redirect so router state freshes completely
+                    window.location.href = '/dashboard';
                 }
             } else if (mode === 'forgot') {
                 const res = await API.post('/auth/forgot-password', {
@@ -51,7 +43,7 @@ const Login = () => {
                     newPassword: formData.newPassword
                 });
                 if (res.data?.success) {
-                    setSuccess('Password updated successfully! Redirecting to login...');
+                    setSuccess('Password updated successfully! Sign in with your new password.');
                     setTimeout(() => setMode('login'), 2000);
                 }
             }
@@ -69,8 +61,7 @@ const Login = () => {
                     <h3 className="fw-bold text-primary">AL-KHIDMAT ACADEMY</h3>
                     <p className="text-muted small">
                         {mode === 'login' && 'Sign in to access school portal'}
-                        {mode === 'register' && 'Create a new admin account'}
-                        {mode === 'forgot' && 'Reset your password'}
+                        {mode === 'forgot' && 'Reset your account password'}
                     </p>
                 </div>
 
@@ -78,23 +69,6 @@ const Login = () => {
                 {success && <div className="alert alert-success py-2 small">{success}</div>}
 
                 <form onSubmit={handleSubmit}>
-                    {mode === 'register' && (
-                        <div className="mb-3">
-                            <label className="form-label small fw-semibold">Full Name</label>
-                            <div className="input-group">
-                                <span className="input-group-text bg-white"><UserIcon size={18} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Admin Name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                        </div>
-                    )}
-
                     <div className="mb-3">
                         <label className="form-label small fw-semibold">Email Address</label>
                         <div className="input-group">
@@ -110,7 +84,7 @@ const Login = () => {
                         </div>
                     </div>
 
-                    {mode !== 'forgot' && (
+                    {mode === 'login' && (
                         <div className="mb-3">
                             <label className="form-label small fw-semibold">Password</label>
                             <div className="input-group">
@@ -145,25 +119,17 @@ const Login = () => {
                     )}
 
                     <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold mb-3" disabled={loading}>
-                        {loading ? 'Processing...' : (
-                            mode === 'login' ? 'Sign In' : mode === 'register' ? 'Register Account' : 'Reset Password'
-                        )}
+                        {loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Reset Password')}
                     </button>
                 </form>
 
-                {/* Options Footer */}
-                <div className="d-flex justify-content-between align-items-center small text-muted pt-2 border-top">
+                <div className="d-flex justify-content-center align-items-center small text-muted pt-2 border-top">
                     {mode === 'login' ? (
-                        <>
-                            <button className="btn btn-link p-0 text-decoration-none small" onClick={() => setMode('forgot')}>
-                                Forgot Password?
-                            </button>
-                            <button className="btn btn-link p-0 text-decoration-none small fw-semibold" onClick={() => setMode('register')}>
-                                Create Account
-                            </button>
-                        </>
+                        <button type="button" className="btn btn-link p-0 text-decoration-none small" onClick={() => setMode('forgot')}>
+                            Forgot Password?
+                        </button>
                     ) : (
-                        <button className="btn btn-link p-0 text-decoration-none small w-100 text-center" onClick={() => setMode('login')}>
+                        <button type="button" className="btn btn-link p-0 text-decoration-none small" onClick={() => setMode('login')}>
                             Back to Sign In
                         </button>
                     )}
